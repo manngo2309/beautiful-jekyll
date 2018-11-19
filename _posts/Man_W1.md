@@ -1,0 +1,84 @@
+#  LQ optimal control
+
+
+
+## Approximate Dynamic Programming
+Consider the optimal control problem (finite horizon)
+
+Q(x,u) = max $E[ \sum_{t=0}^N R(x_t,u_t) + R(x_{N+1},u_{N+1})]$
+
+( $Q_k(x,u)$ = max $E[ \sum_{t=k}^N R(x_t,u_t) + R(x_{N+1},u_{N+1})]$)
+
+s.t   
+$x_{t+1} = f(x_t,u_t) = \phi(x_t,u_t) + w_t$, 
+
+$u_t = \pi_t(\tau_t)$,
+
+$(x_0,u_0)=(x,u)$,
+
+where $\tau_t$ is the trajectory until time $t$, $w$ is a random variable.
+
+* We can use dynamic programming to evaluate function $Q$:
+  
+  $Q_{N+1} = R(x_{N+1},u_{N+1})$, and recursively step
+
+  $Q_k(x,u) = R(x,u) + max_{u'}E[ Q_{k+1}(f(x,u),u')]$
+
+*Note that*: $k$ in above is not iteration but time, and $R$ is deterministic reward function. For using iteration to estimate $Q$, we usually need that: $Q_k$ is stationary ($Q_k = Q$). This phenomenom is occur in ergodic control problem (average-reward model) or infinite horizon problem:
+
+
+Q(x,u) = max $E[ \sum_{t=0}^{\infty} \gamma^t R(x_t,u_t)]$
+
+
+
+s.t   
+$x_{t+1} = f(x_t,u_t) = \phi(x_t,u_t) + w_t$, 
+
+$u_t = \pi_t(\tau_t)$,
+
+$(x_0,u_0)=(x,u)$,
+
+$\gamma \in (0,1)$.
+
+By dynamic programming principle
+
+$Q(x,u) = R(x,u) + max_{u'}\gamma E[ Q(f(x,u),u')]$
+
+Combining contraction map theorem and stochastic approximate theorem in [Theorem 1](https://papers.nips.cc/paper/764-convergence-of-stochastic-iterative-dynamic-programming-algorithms.pdf "theorem 1")
+, we can update $Q$ by iteration
+
+$Q^n(x,u) = Q^{n-1}(x,u) + \nu [R(x,u)+ \gamma max_{u'}Q^{n-1}(f(x,u),u') - Q^{n-1}(x,u) ]$
+
+
+## How we can use RL to deal with finite hozizon ?
+
+*Trick*: extend state from $x$ to $y=(x,t)$ ?Is it ok ?
+
+This problem had been studied in [Reinforcement Learning with Time (1997)](https://pdfs.semanticscholar.org/66be/5319840b6a49be0b7aa2d68b427d008f7f77.pdf), **but there are no rigorous proof for the convergence**.
+
+*Note that*: if there is a discount parameter in reward we will have contraction map lemma !
+#### Lemma 1:
+The map $H$ is defined by $H(Q)(t,x,u) = R(x,u) + \sum_y P(x,y,u) \max_{u'} Q(t+1,y,u')$. $H$ is a contraction map with sup-norm.
+
+By using standard argument we can proof the convergence of below iteration scheme:
+
+
+We can update $Q$ by iteration
+
+$Q^n(t,x,u) = Q^{n-1}(t,x,u) + \nu [R(x,u)+ \gamma max_{u'}Q^{n-1}(t+1,f(x,u),u') - Q^{n-1}(t,x,u) ]$
+
+**Problem** Study the iteration scheme when we don't use discount factor.
+
+## Random horizon
+Notice the case when $T$ follow exponential distribution, we can turn the finite horizon problem into infite horizion problem !
+
+## Linear quadratic problem
+$minimize_{u_t,x_t} \,  \frac{1}{2}\sum_{t=0}^N \left\{x_t^TQ x_t + u_t^T R u_t + \frac{1}{2} x_{N+1}^T S x_{N+1}\right\}$
+  
+  subject to $x_{t+1} = A x_t+ B u_t$ $,t=0,1,\dotsc,N$
+
+
+### Exact solution
+
+
+
